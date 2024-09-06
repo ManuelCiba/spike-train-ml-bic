@@ -48,9 +48,11 @@ if __name__ == '__main__':
     time_list.append(time.time())
     exec(open(os.path.join(os.getcwd(), "script3_1_machine_learning.py")).read())
     time_list.append(time.time())
-    exec(open(os.path.join(os.getcwd(), "script4_plot_results.py")).read())
+    exec(open(os.path.join(os.getcwd(), "script4_plot_features.py")).read())
     time_list.append(time.time())
     exec(open(os.path.join(os.getcwd(), "script4_find_best_result.py")).read())
+    time_list.append(time.time())
+    exec(open(os.path.join(os.getcwd(), "script5_plot_ml_results.py")).read())
     time_list.append(time.time())
 
 

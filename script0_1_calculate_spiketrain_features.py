@@ -122,10 +122,7 @@ if __name__ == '__main__':
         print("Calculating: " + chip_name + " " + group)
         spiketrains = script0.load_and_convert_file(chip_name, group)
 
-        # 2) bin spike trains
-        #bst = spiketrain_handler.bin_spike_trains(spiketrains, bin_size)
-
-        # 3) Calculate matrices
+        # 3) Calculate spike train features
         calculate_spiketrain_features_and_save_results(method, spiketrains, window_size, window_overlap, result_folder)
 
 

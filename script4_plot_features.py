@@ -14,14 +14,28 @@ if __name__ == '__main__':
 
         SOURCE_DATA_FOLDER = FOLDER
 
-        base_folder = os.path.join(settings.PATH_RESULTS_FOLDER, SOURCE_DATA_FOLDER)
-        path_experiment_list = folder_structure.get_all_paths(base_folder, 'overlap')
+        # define parameter
+        bin_sizes = settings.BIN_SIZES
+        window_sizes = settings.WINDOW_SIZES
+        window_overlaps = settings.WINDOW_OVERLAPS
+        methods = settings.CONNECTIVITY_METHODS
+        groups = ["bic00", "bic10"]
+        chip_names = folder_structure.get_all_chip_names()
+
+        path_experiment_list = folder_structure.generate_paths(target_data_folder=SOURCE_DATA_FOLDER,
+                                                               methods=methods,
+                                                               bin_sizes=bin_sizes,
+                                                               window_sizes=window_sizes,
+                                                               window_overlaps=window_overlaps,
+                                                               chip_names=[],
+                                                               groups=[])
 
         # for all experiments (=different parameter)
         for path_experiment in path_experiment_list:
 
             # skip all feature sets that include matrices (=4096 features = 4096 plots)
-            if "03_0_feature-set_measures_synchrony-value" not in path_experiment:
+            if ("03_0_feature-set_measures_synchrony-value" not in path_experiment and
+                    "03_0_feature-set_measures_synchrony-value_independent" not in path_experiment):
                 continue
 
             # load feature matrices

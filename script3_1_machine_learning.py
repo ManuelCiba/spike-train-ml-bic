@@ -42,17 +42,38 @@ def withinloop(path_experiment, SOURCE_DATA_FOLDER, TARGET_DATA_FOLDER):
     df_results, X_test, y_test, = workflow_caroline.caroline_workflow(models, matrix_np_list_bic00,
                                                                       matrix_np_list_bic10)
     workflow_caroline.save_df_results_to_HD(target_path, df_results, X_test, y_test)
+    print("Calculation finished: " + full_path)
 
+def _get_path_experiment_list():
+    # define parameter
+    bin_sizes = settings.BIN_SIZES
+    window_sizes = settings.WINDOW_SIZES
+    window_overlaps = settings.WINDOW_OVERLAPS
+    methods = settings.CONNECTIVITY_METHODS
+    groups = ["bic00", "bic10"]
+    chip_names = folder_structure.get_all_chip_names()
+
+    path_experiment_list = folder_structure.generate_paths(target_data_folder=SOURCE_DATA_FOLDER,
+                                                           methods=methods,
+                                                           bin_sizes=bin_sizes,
+                                                           window_sizes=window_sizes,
+                                                           window_overlaps=window_overlaps,
+                                                           chip_names=[],
+                                                           groups=[])
+
+    return path_experiment_list
 
 def run_parallized(models, SOURCE_DATA_FOLDER, TARGET_DATA_FOLDER):
-    base_folder = os.path.join(settings.PATH_RESULTS_FOLDER, SOURCE_DATA_FOLDER)
-    path_experiment_list = folder_structure.get_all_paths(base_folder, 'overlap')
-    num_cores = int(multiprocessing.cpu_count()/4)
+
+    # get all paths of the different parameter combinations
+    path_experiment_list = _get_path_experiment_list()
+
+    # define number of CPU cores
+    num_cores = int(multiprocessing.cpu_count()/2)
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", category=Warning)
         Parallel(n_jobs=num_cores)(delayed(withinloop)(param, SOURCE_DATA_FOLDER, TARGET_DATA_FOLDER) for param in path_experiment_list)
-
 
 def run(models, SOURCE_DATA_FOLDER, TARGET_DATA_FOLDER):
     base_folder = os.path.join(settings.PATH_RESULTS_FOLDER, SOURCE_DATA_FOLDER)

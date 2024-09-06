@@ -32,15 +32,16 @@ FOLDER_NAME_features_all = "03_0_feature-set_all"
 
 
 # Parameter which will be calculated
-BIN_SIZES = [1 * pq.ms, 5 * pq.ms]  #
-WINDOW_SIZES = [10 * pq.s, 30 * pq.s, 60 * pq.s, 120 * pq.s, 240 * pq.s]  #  600 * pq.s
-WINDOW_OVERLAPS = [0.2, 0.4, 0.5, 0]  # 0.5 0.5 = half window size
-CONNECTIVITY_METHODS = ["tspe", "spearman", "canonical", "pearson"]
-FEATURE_SET_LIST = [#FOLDER_NAME_features_matrices,
-                    #FOLDER_NAME_features_measures,
+BIN_SIZES = [1 * pq.ms, 10 * pq.ms, 100 * pq.ms]  # 5 * pq.ms
+WINDOW_SIZES = [60 * pq.s, 120 * pq.s, 240 * pq.s]  # 10 ms excluded, took too long.  600 * pq.s excluded, not enough data points for 10 fold cross validation
+WINDOW_OVERLAPS = [0, 0.25, 0.5, 0.75]  # 0.5 0.5 = half window size
+CONNECTIVITY_METHODS = ["spearman", "canonical", "pearson"]  # tspe excluded, because needs another thresholding method than the other correlation methods
+FEATURE_SET_LIST = [FOLDER_NAME_features_matrices,
+                    FOLDER_NAME_features_measures,
                     FOLDER_NAME_features_measures_synchrony_value,
-                    #FOLDER_NAME_features_measures_synchrony_curve,
-                    #FOLDER_NAME_features_synchrony_curve,
-                    #FOLDER_NAME_features_matrices_synchrony_curve
+                    FOLDER_NAME_features_measures_synchrony_value_independent,
+                    FOLDER_NAME_features_measures_synchrony_curve,
+                    FOLDER_NAME_features_synchrony_curve,
+                    FOLDER_NAME_features_matrices_synchrony_curve
                     ]
-ML_MODELS = ['RF', 'SVM', 'NB', 'KNN']  # excluded LR,  excluded 'XGboost' TAKES REALLY LONG AND 100% CPU
+ML_MODELS = ['RF', 'XGboost', 'SVM', 'NB', 'LR', 'KNN', 'MLP']  # excluded LR,  excluded 'XGboost' TAKES REALLY LONG AND 100% CPU

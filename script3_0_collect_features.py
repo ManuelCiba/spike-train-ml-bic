@@ -31,8 +31,24 @@ def merge_two_dataframes_together(df1, df2):
 
 if __name__ == '__main__':
 
-    base_folder = os.path.join(settings.PATH_RESULTS_FOLDER, SOURCE_DATA_FOLDER)
-    path_experiment_list = folder_structure.get_all_paths(base_folder, 'overlap')
+    # define parameter
+    bin_sizes = settings.BIN_SIZES
+    window_sizes = settings.WINDOW_SIZES
+    window_overlaps = settings.WINDOW_OVERLAPS
+    methods = settings.CONNECTIVITY_METHODS
+    groups = ["bic00", "bic10"]
+    chip_names = folder_structure.get_all_chip_names()
+
+    # base_folder = os.path.join(settings.PATH_RESULTS_FOLDER, SOURCE_DATA_FOLDER)
+    # chip_path_list = folder_structure.get_all_paths(base_folder, 'overlap')
+
+    path_experiment_list = folder_structure.generate_paths(target_data_folder=SOURCE_DATA_FOLDER,
+                                                     methods=methods,
+                                                     bin_sizes=bin_sizes,
+                                                     window_sizes=window_sizes,
+                                                     window_overlaps=window_overlaps,
+                                                     chip_names=[],
+                                                     groups=[])
 
 
     for path_experiment in path_experiment_list:
@@ -51,7 +67,10 @@ if __name__ == '__main__':
         matrix_df_bic00 = merge_list_of_df_to_one_df(matrix_list_bic00)
         matrix_df_bic10 = merge_list_of_df_to_one_df(matrix_list_bic10)
 
-        save_dataframe(matrix_df_bic00, matrix_df_bic10, target_path)
+        if os.path.isfile(os.path.join(target_path, 'bic10.csv')):
+            print("Already calculated: " + target_path)
+        else:
+            save_dataframe(matrix_df_bic00, matrix_df_bic10, target_path)
 
 
         # FEATURES: only connectivity matrices (independent)
@@ -60,16 +79,19 @@ if __name__ == '__main__':
         TARGET_DATA_FOLDER = settings.FOLDER_NAME_features_matrices_independent
         target_path = source_path.replace(SOURCE_DATA_FOLDER, TARGET_DATA_FOLDER)
 
-        matrix_list_bic00 = workflow_caroline.load_all_matrices(source_path, 'bic00')
-        matrix_list_bic10 = workflow_caroline.load_all_matrices(source_path, 'bic10')
+        matrix_list_bic00_independent = workflow_caroline.load_all_matrices(source_path, 'bic00')
+        matrix_list_bic10_independent = workflow_caroline.load_all_matrices(source_path, 'bic10')
 
-        matrix_list_bic00 = workflow_caroline.flatten_df_matrices(matrix_list_bic00)
-        matrix_list_bic10 = workflow_caroline.flatten_df_matrices(matrix_list_bic10)
+        matrix_list_bic00_independent = workflow_caroline.flatten_df_matrices(matrix_list_bic00_independent)
+        matrix_list_bic10_independent = workflow_caroline.flatten_df_matrices(matrix_list_bic10_independent)
 
-        matrix_df_bic00_independent = merge_list_of_df_to_one_df(matrix_list_bic00)
-        matrix_df_bic10_independent = merge_list_of_df_to_one_df(matrix_list_bic10)
+        matrix_df_bic00_independent = merge_list_of_df_to_one_df(matrix_list_bic00_independent)
+        matrix_df_bic10_independent = merge_list_of_df_to_one_df(matrix_list_bic10_independent)
 
-        save_dataframe(matrix_df_bic00_independent, matrix_df_bic10_independent, target_path)
+        if os.path.isfile(os.path.join(target_path, 'bic10.csv')):
+            print("Already calculated: " + target_path)
+        else:
+            save_dataframe(matrix_df_bic00_independent, matrix_df_bic10_independent, target_path)
 
 
         # FEATURES: only complex network measures
@@ -91,7 +113,7 @@ if __name__ == '__main__':
         source_path = path_experiment.replace(settings.FOLDER_NAME_matrices_scaled,
                                               settings.FOLDER_NAME_measures_independent)
         TARGET_DATA_FOLDER = settings.FOLDER_NAME_features_measures_independent
-        target_path = source_path.replace(settings.FOLDER_NAME_measures, TARGET_DATA_FOLDER)
+        target_path = source_path.replace(settings.FOLDER_NAME_measures_independent, TARGET_DATA_FOLDER)
 
         measures_list_bic00 = workflow_caroline.load_all_matrices(source_path, 'bic00', index_col=False)
         measures_list_bic10 = workflow_caroline.load_all_matrices(source_path, 'bic10', index_col=False)
@@ -158,6 +180,7 @@ if __name__ == '__main__':
         # FEATURES: connectivity matrices and synchrony curve
         target_path = source_path.replace(settings.FOLDER_NAME_synchrony,
                                           settings.FOLDER_NAME_features_matrices_synchrony_curve)
+
         matrix_synchrony_curve_df_bic00 = merge_two_dataframes_together(matrix_df_bic00, synchrony_curve_df_bic00)
         matrix_synchrony_curve_df_bic10 = merge_two_dataframes_together(matrix_df_bic10, synchrony_curve_df_bic10)
         save_dataframe(matrix_synchrony_curve_df_bic00, matrix_synchrony_curve_df_bic10, target_path)

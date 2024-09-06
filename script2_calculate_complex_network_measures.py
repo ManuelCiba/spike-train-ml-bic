@@ -30,6 +30,7 @@ def calculate_complex_network_measures(chip_path):
             print("Already calculated: " + target_path)
             continue  # continue with next loop iteration
 
+        print("Calculating: " + target_path)
         matrix = np.array(matrix_handling.load_correlation_matrix(file))
 
         # TODO: is thresholding correct in this case?
@@ -84,8 +85,24 @@ if __name__ == '__main__':
 
     warnings.filterwarnings("ignore")
 
-    base_folder = os.path.join(settings.PATH_RESULTS_FOLDER, SOURCE_DATA_FOLDER)
-    chip_path_list = folder_structure.get_all_paths(base_folder, 'bic')
+    # define parameter
+    bin_sizes = settings.BIN_SIZES
+    window_sizes = settings.WINDOW_SIZES
+    window_overlaps = settings.WINDOW_OVERLAPS
+    methods = settings.CONNECTIVITY_METHODS
+    groups = ["bic00", "bic10"]
+    chip_names = folder_structure.get_all_chip_names()
+
+    # base_folder = os.path.join(settings.PATH_RESULTS_FOLDER, SOURCE_DATA_FOLDER)
+    # chip_path_list = folder_structure.get_all_paths(base_folder, 'bic')
+
+    chip_path_list = folder_structure.generate_paths(target_data_folder=SOURCE_DATA_FOLDER,
+                                                     methods=methods,
+                                                     bin_sizes=bin_sizes,
+                                                     window_sizes=window_sizes,
+                                                     window_overlaps=window_overlaps,
+                                                     chip_names=chip_names,
+                                                     groups=groups)
 
     for chip_path in chip_path_list:
         print("Calculating complex network measures for Chip: " + chip_path)
