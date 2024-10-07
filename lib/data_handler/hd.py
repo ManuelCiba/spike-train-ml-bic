@@ -1,11 +1,46 @@
 import os
 import pandas as pd
+import h5py
+import numpy as np
+
+def save_spiketrains_as_csv(bst, full_path):
+    # create directory
+    result_folder = os.path.dirname(full_path)
+    os.makedirs(result_folder, exist_ok=True)
+
+    # Extract the binned spike train data (binary matrix)
+    binary_data = bst.to_bool_array()
+
+    # Create a Pandas DataFrame to save the binary spike train data
+    bin_edges = np.arange(bst.t_start.magnitude, bst.t_stop.magnitude, bst.bin_size.magnitude) * bst.units
+
+    # Create a dictionary to store the spike times for each neuron
+    spike_times_dict = {}
+
+    # Iterate through each neuron
+    for i, neuron_data in enumerate(binary_data):
+        # Find the indices where spikes occur (True values)
+        spike_indices = np.where(neuron_data == True)[0]
+
+        # Get the corresponding times for these spike indices
+        spike_times = bin_edges[spike_indices]
+
+        # Store the spike times in the dictionary
+        spike_times_dict[f'El {i + 1}'] = spike_times.magnitude  # Convert to float for saving in CSV
+
+    # Convert the dictionary to a DataFrame for easy saving to CSV
+    df_spike_times = pd.DataFrame(dict([(k, pd.Series(v)) for k, v in spike_times_dict.items()]))
+
+    # Save to CSV
+    df_spike_times.to_csv(full_path, index=False)
+
 
 def load_csv_as_df(full_path, index_col=False):
     # set index_col=0 if the csv file contains row-names
     # header=0 and index_col=0 will use the row and col names like in the csv file
     df_matrix = pd.read_csv(full_path, header=0, index_col=index_col)
     return df_matrix
+
 
 def save_df_as_csv(df, full_path, index=False):
     # create directory
@@ -15,6 +50,7 @@ def save_df_as_csv(df, full_path, index=False):
     #df = pd.DataFrame(result)
     #df.to_csv(full_path, sep=',', header=header, index=False)
     df.to_csv(full_path, sep=',', index=index)
+
 
 def save_figure(fig, full_path):
     # create directory

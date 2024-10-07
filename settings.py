@@ -13,6 +13,7 @@ PATH_RESULTS_FOLDER = os.path.join(os.getcwd(), "results")
 #PATH_RESULTS_FOLDER = "/home/manuel/Documents/Data/Japan/results"
 
 # Folder names for the results
+FOLDER_NAME_split_data = "00_0_split_data"
 FOLDER_NAME_synchrony = "00_1_spiketrain_features"
 FOLDER_NAME_matrices_raw = "00_correlation_matrices_raw"
 FOLDER_NAME_matrices_scaled = "01_correlation_matrices_scaled"
@@ -32,16 +33,19 @@ FOLDER_NAME_features_all = "03_0_feature-set_all"
 
 
 # Parameter which will be calculated
-BIN_SIZES = [1 * pq.ms, 10 * pq.ms, 100 * pq.ms]  # 5 * pq.ms
-WINDOW_SIZES = [60 * pq.s, 120 * pq.s, 240 * pq.s]  # 10 ms excluded, took too long.  600 * pq.s excluded, not enough data points for 10 fold cross validation
-WINDOW_OVERLAPS = [0, 0.25, 0.5, 0.75]  # 0.5 0.5 = half window size
+#BIN_SIZES = [10 * pq.ms]
+BIN_SIZES = [1 * pq.ms, 10 * pq.ms, 100 * pq.ms] # 5 * pq.ms
+WINDOW_SIZES = [60 * pq.s, 120 * pq.s, 240 * pq.s]  # 30 s excluded, took too long.  600 * pq.s excluded, not enough data points for 10 fold cross validation
+#WINDOW_OVERLAPS = [0.75]
+WINDOW_OVERLAPS = [0, 0.25, 0.5, 0.75] # 0.5 0.5 = half window size
 CONNECTIVITY_METHODS = ["spearman", "canonical", "pearson"]  # tspe excluded, because needs another thresholding method than the other correlation methods
-FEATURE_SET_LIST = [FOLDER_NAME_features_matrices,
+FEATURE_SET_LIST = [#FOLDER_NAME_features_matrices,
                     FOLDER_NAME_features_measures,
-                    FOLDER_NAME_features_measures_synchrony_value,
-                    FOLDER_NAME_features_measures_synchrony_value_independent,
-                    FOLDER_NAME_features_measures_synchrony_curve,
-                    FOLDER_NAME_features_synchrony_curve,
-                    FOLDER_NAME_features_matrices_synchrony_curve
+                    FOLDER_NAME_features_measures_independent,
+                    #FOLDER_NAME_features_measures_synchrony_value,
+                    #FOLDER_NAME_features_measures_synchrony_value_independent,
+                    #FOLDER_NAME_features_measures_synchrony_curve,
+                    #FOLDER_NAME_features_synchrony_curve,
+                    #FOLDER_NAME_features_matrices_synchrony_curve
                     ]
 ML_MODELS = ['RF', 'XGboost', 'SVM', 'NB', 'LR', 'KNN', 'MLP']  # excluded LR,  excluded 'XGboost' TAKES REALLY LONG AND 100% CPU
