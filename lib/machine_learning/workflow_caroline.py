@@ -98,11 +98,9 @@ def load_all_matrices(experiment_path, group, index_col=0):
     return matrices_list
 
 
-# NOT USED ANYMORE
 def _flatten_matrix(x):
     flatten = matrix.flatten(np.array(x))
     return flatten
-
 
 # TODO: is it correct to replace nan by zeros?
 # This is called before matrix gets fed into the ML model

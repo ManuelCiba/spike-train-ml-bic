@@ -2,6 +2,7 @@ import os
 import pandas as pd
 import h5py
 import numpy as np
+import pickle
 
 def save_spiketrains_as_csv(bst, full_path):
     # create directory
@@ -50,6 +51,17 @@ def save_df_as_csv(df, full_path, index=False):
     #df = pd.DataFrame(result)
     #df.to_csv(full_path, sep=',', header=header, index=False)
     df.to_csv(full_path, sep=',', index=index)
+
+def save_list_as_pkl(list, full_path):
+    # save lists as pickles format
+    full_path = os.path.join(full_path)
+    with open(full_path, 'wb') as f:
+        pickle.dump(list, f)
+
+def load_pkl_as_list(full_path):
+    with open(full_path, 'rb') as f:
+        list = pickle.load(f)
+    return list
 
 
 def save_figure(fig, full_path):
