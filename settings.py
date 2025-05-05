@@ -1,8 +1,6 @@
 import os
 import quantities as pq
 
-from old.settings import CONNECTIVITY_METHODS
-
 PATH_RESULTS_FOLDER = os.path.join(os.getcwd(), "results")
 
 # Folder names for the results
