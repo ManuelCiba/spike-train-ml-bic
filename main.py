@@ -1,10 +1,3 @@
-# TODO: statistical tests: omit nan, ML: replaced nan by zero !!!!
-
-# TODO: What could be improved compared to the last paper version:
-# TODO: complex network measures: threshold 0.5 -> 2*std()+mean()
-# TODO: not only use complex network measures + synchrony value but all (matrices + measures + synchrony curves)
-# TODO: when flatting matrices: is it correct to replace nan by zeros?
-
 # Author: Manuel Ciba, 2024
 # The machine learning script and complex network measure calculation is based on different works from
 # Caroline Lourenco Alves.
@@ -14,10 +7,6 @@
 # [3] Alves, Caroline L., et al. "Application of machine learning and complex network measures to an EEG dataset from ayahuasca experiments." Plos one 17.12 (2022): e0277257.
 # [4] Alves, Caroline L., et al. "On the advances in machine learning and complex network measures to an EEG dataset from DMT experiments." Journal of Physics: Complexity 5.1 (2024): 015002.
 # [5] Alves, Caroline L., et al. "Analysis of functional connectivity using machine learning and deep learning in different data modalities from individuals with schizophrenia." Journal of Neural Engineering 20.5 (2023): 056025.
-
-# How to produce requirements.txt:
-# In pycharm, go to terminal and enter:
-# pip freeze > requirements.txt
 
 import time
 import os
@@ -53,6 +42,8 @@ if __name__ == '__main__':
     exec(open(os.path.join(os.getcwd(), "script4_find_best_result.py")).read())
     time_list.append(time.time())
     exec(open(os.path.join(os.getcwd(), "script5_plot_ml_results.py")).read())
+    time_list.append(time.time())
+    exec(open(os.path.join(os.getcwd(), "script6_shap.py")).read())
     time_list.append(time.time())
 
 
