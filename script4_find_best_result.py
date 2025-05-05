@@ -1,11 +1,28 @@
 import os
 
-from lib.machine_learning import workflow_caroline
+from lib.machine_learning import workflow_new
 from lib.data_handler import folder_structure
 from lib.data_handler import hd
 import settings
 import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
+
+def bootstrap_ci(data, n_iterations=1000, ci_percentile=95):
+    np.random.seed(13)
+    # Bootstrapping
+    means = []
+    for _ in range(n_iterations):
+        bootstrap_sample = np.random.choice(data, size=len(data), replace=True)
+        means.append(np.mean(bootstrap_sample))
+
+    # Calculate the percentiles for the confidence interval
+    lower_percentile = (100 - ci_percentile) / 2
+    upper_percentile = 100 - lower_percentile
+    lower_ci = np.percentile(means, lower_percentile)
+    upper_ci = np.percentile(means, upper_percentile)
+
+    return lower_ci, upper_ci
 
 if __name__ == '__main__':
     # for all machine learning folder:
@@ -41,32 +58,49 @@ if __name__ == '__main__':
 
 
                             # load ml results
-                            df_results, X_test, y_test = workflow_caroline.load_df_results_from_hd(path_experiment)
+                            df_train_results, df_test_results, X_train_list, y_train_list, X_test_list, y_test_list = workflow_new.load_df_results_from_hd(path_experiment)
 
-                            # calculate test metrics
-                            list_auc_test, list_accuracy_test, list_recall_test, list_precision_test = workflow_caroline.calculate_test_metrics(
-                                df_results, X_test, y_test)
+                            # Average test results across 9 splits in order to get a single value to evaluate the model
+                            #df_results = df_test_results.groupby("Model").mean().reset_index()
+
+                            df_results = df_test_results.groupby("Model").mean().reset_index()
+
+                            # Calculate the confidence interval for each metric
+                            for metric in ["AUC"]:  # Add your relevant metrics here
+                                for model in df_results["Model"].unique():
+                                    # Filter the results for each model and metric
+                                    model_data = df_test_results[df_test_results["Model"] == model][metric]
+
+                                    # Get the confidence interval
+                                    lower_ci, upper_ci = bootstrap_ci(model_data)
+
+                                    # Add the confidence intervals to the results dataframe
+                                    df_results.loc[df_results["Model"] == model, f"{metric}_CI_lower"] = lower_ci
+                                    df_results.loc[df_results["Model"] == model, f"{metric}_CI_upper"] = upper_ci
+
 
                             # for each ML model
                             for idx_model in range(len(df_results['Model'])):
-
-                                # get model name
+                            #    # get model name
                                 model = df_results['Model'][idx_model]
-
-                                # fill in table
+                            #    # fill in table
                                 list_results_test.append({'Correlation method': method,
                                                           'Bin size': int(bin_size),
                                                           'Window size': int(window_size),
                                                           'Window overlap': window_overlap,
                                                           'ML model': model,
-                                                          'AUC': list_auc_test[idx_model],
-                                                          'Accuracy': list_accuracy_test[idx_model],
-                                                          'Recall': list_recall_test[idx_model],
-                                                          'Precision': list_precision_test[idx_model]})
+                                                          'AUC': df_results.at[idx_model, 'AUC'],
+                                                          'AUC_CI_lower': df_results.at[idx_model, 'AUC_CI_lower'],
+                                                          'AUC_CI_upper': df_results.at[idx_model, 'AUC_CI_upper'],
+                                                          'Accuracy': df_results.at[idx_model, 'Accuracy'],
+                                                          'Recall': df_results.at[idx_model, 'Recall'],
+                                                          'Precision': df_results.at[idx_model, 'Precision'],
+                                                          'F1': df_results.at[idx_model, 'F1'],
+                                                          })
 
         # make DataFrame and sort
         df_results_test = pd.DataFrame(list_results_test)
-        df_sorted = df_results_test.sort_values(by='Accuracy', ascending=False)
+        df_sorted = df_results_test.sort_values(by='AUC_CI_lower', ascending=False)
 
         # save dataframe as csv
         full_path = os.path.join(base_folder, "results_test.csv")

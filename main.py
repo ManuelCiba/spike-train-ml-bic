@@ -1,4 +1,4 @@
-# TODO: statistical tests: omit nan, MI: replaced nan by zero !!!!
+# TODO: statistical tests: omit nan, ML: replaced nan by zero !!!!
 
 # TODO: What could be improved compared to the last paper version:
 # TODO: complex network measures: threshold 0.5 -> 2*std()+mean()

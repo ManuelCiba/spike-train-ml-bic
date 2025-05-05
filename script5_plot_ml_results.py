@@ -38,13 +38,13 @@ def plot_all(df):
         # Ensure the x-axis is sorted by setting the order in the barplot
         # sns.barplot(x=param, y="AUC", hue="ML model", data=df, ax=ax,
         #            order=parameter_orders[param], hue_order=ml_models)
-        sns.stripplot(x=param, y="AUC", hue="ML model", data=df_renamed, ax=ax,
+        sns.stripplot(x=param, y="AUC_CI_lower", hue="ML model", data=df_renamed, ax=ax,
                       order=parameter_orders[param], hue_order=ml_models, jitter=True, dodge=True,
                       palette="viridis")
 
         ax.set_title(f"AUC by {param}")
         ax.set_xlabel(param)
-        ax.set_ylabel("AUC")
+        ax.set_ylabel("AUC (Lower CI)")
 
         # Set y-axis ticks from 0 to 1 with 0.1 steps
         ax.set_yticks(np.arange(0, 1.1, 0.1))
@@ -67,8 +67,7 @@ def plot_paper(df):
     # Example filter values
     window_overlap_value = 75
     correlation_method_value = 'pearson'
-    #ml_model_value =  'MLP' # Choose an ML model (you can loop through models too)
-    bin_size_value = 10   # Example window size in ms
+    bin_size_value = 1   # Example window size in ms
 
     # Filter the DataFrame based on predefined values
     filtered_df = df[
@@ -79,19 +78,60 @@ def plot_paper(df):
 
     ml_models = settings.ML_MODELS
 
+    #Calculate error bars
+    filtered_df['AUC_error_lower'] = filtered_df['AUC'] - filtered_df['AUC_CI_lower']
+    filtered_df['AUC_error_upper'] = filtered_df['AUC_CI_upper'] - filtered_df['AUC']
+
     # Create subplots
     fig, ax = plt.subplots(1, 1, figsize=(8, 6))
 
+    # Extend palette to match number of models
+    palette = sns.color_palette('viridis', n_colors=len(ml_models))
+
     # Plot the stripplot for bin size
-    #sns.stripplot(x='Window size', y='AUC', hue='ML model', data=filtered_df, jitter=True, palette='viridis')
-    sns.lineplot(x='Window size', y='AUC', hue='ML model', style='ML model', hue_order=ml_models,
-        markers=True, dashes=True, data=filtered_df, palette='viridis',
+    sns.lineplot(x='Window size', y='AUC_CI_lower', hue='ML model', style='ML model', hue_order=ml_models,
+        markers=True, dashes=True, data=filtered_df, palette=palette,
                  markersize=20, alpha=0.5, linewidth=2.5
     )
 
+    # # Add error bars manually for each model
+    # for model in ml_models:
+    #     model_df = filtered_df[filtered_df['ML model'] == model]
+    #     plt.errorbar(
+    #         model_df['Window size'], model_df['AUC'],
+    #         yerr=[model_df['AUC_error_lower'], model_df['AUC_error_upper']],
+    #         fmt='none', capsize=4, elinewidth=1.5, color=palette[ml_models.index(model)]
+    #     )
+
+    # # Loop through each model to plot individually with confidence intervals
+    # marker_list = ['o', '+', '.', 'x', '*', 'v', '^']
+    # for model_idx in range(len(ml_models)):
+    #     model = ml_models[model_idx]
+    #     model_df = filtered_df[filtered_df['ML model'] == model]
+    #
+    #     # Plot the AUC line for the model
+    #     sns.lineplot(
+    #         x='Window size',
+    #         y='AUC',
+    #         data=model_df,
+    #         label=model,
+    #         marker=marker_list[model_idx],
+    #         markersize=20,
+    #         linestyle='-',
+    #         ax=ax
+    #     )
+    #
+    #     # Add the confidence interval as a shaded area
+    #     ax.fill_between(
+    #         model_df['Window size'],
+    #         model_df['AUC_CI_lower'],
+    #         model_df['AUC_CI_upper'],
+    #         alpha=0.1
+    #     )
+
     # Add labels and title
     plt.xlabel('Window size in s', fontsize=12)
-    plt.ylabel('AUC', fontsize=12)
+    plt.ylabel('AUC (Lower CI)', fontsize=12)
     #plt.title(
     #    f'Window overlap = {window_overlap_value} (relative), Bin size = {bin_size_value} ms, Correlation method = {correlation_method_value}',
     #    fontsize=14)
@@ -125,15 +165,11 @@ if __name__ == '__main__':
 
         base_folder = os.path.join(settings.PATH_RESULTS_FOLDER, SOURCE_DATA_FOLDER)
 
+        # Test results (final AUC values)
         full_path = os.path.join(base_folder, 'results_test.csv')
-
         df = hd.load_csv_as_df(full_path)
-
-        ######################################################
-        # Plot
         # relative to %
         df["Window overlap"] = df["Window overlap"] * 100
-
         plot_all(df)
         plot_paper(df)
 
