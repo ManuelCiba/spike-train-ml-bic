@@ -5,7 +5,7 @@ Ciba, M., Petzold, M., Alves, C. L., Rodrigues, F. A., Jimbo, Y., & Thielemann, 
 Download: https://www.nature.com/articles/s41598-025-99479-7
 
 # How to use
-- Install packages using "requirements.txt".
+- Install packages using "requirements.txt" (Python version 3.10 was used).
 - Run the script "main.py".
 - Please note, that the source data folder is not included.
 
